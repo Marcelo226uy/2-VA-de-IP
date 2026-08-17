@@ -15,7 +15,7 @@ typedef struct {
     int id; 
     char nome[64];
     int capacidade;
-    char equipamentos[256]; // texto livre (ex.: "PCs, GPU, Projetor")
+    char equipamentos[256]; // texto informativo
     StatusLab status;
 } Laboratorio;
 
