@@ -1,39 +1,40 @@
 typedef struct {
-int dia, mes, ano; // DD/MM/AAAA
+    int dia, mes, ano; // DD/MM/AAAA
 } Data;
 
 typedef struct {
-int hora, minuto; //24h
+    int hora, minuto; //24h
 } Horario;
 
 typedef enum {
-LAB_ATIVO = 1,
-LAB_INDISPONIVEL = 0 // manutenção, bloqueio, etc.
+    LAB_ATIVO = 1,
+    LAB_INDISPONIVEL = 0 // manutenção, bloqueio, etc.
 } StatusLab;
 
 typedef struct {
-int id;
-char nome[64];
-int capacidade;
-char equipamentos[256]; // texto livre (ex.: "PCs, GPU, Projetor")
-StatusLab status;
+    int id; 
+    char nome[64];
+    int capacidade;
+    char equipamentos[256]; // texto informativo
+    StatusLab status;
 } Laboratorio;
+
 typedef struct {
-int id;
-char solicitante[64]; // nome ou matrícula
-int idLaboratorio;
-Data data;
-Horario inicio; // início do uso
-Horario fim; // fim do uso
+    int id;
+    char solicitante[64]; // nome ou matrícula
+    int idLaboratorio;
+    Data data;
+    Horario inicio; // início do uso
+    Horario fim; // fim do uso
 } ReservaLab;
 
 // Coleções dinâmicas
 typedef struct {
-Laboratorio *itens;
-int qtd, cap;
+    Laboratorio *itens;
+    int qtd, cap;
 } VetLaboratorios;
 
 typedef struct {
-ReservaLab *itens;
-int qtd, cap;
+    ReservaLab *itens;
+    int qtd, cap;
 } VetReservasLab;
