@@ -1,7 +1,48 @@
 #include <stdio.h>
 
-<<<<<<< HEAD
+// STRUCTS
+typedef struct {
+    int dia, mes, ano; // DD/MM/AAAA
+} Data;
+
+typedef struct {
+    int hora, minuto; //24h
+} Horario;
+
+typedef enum {
+    LAB_ATIVO = 1,
+    LAB_INDISPONIVEL = 0 // manutenção, bloqueio, etc.
+} StatusLab;
+
+typedef struct {
+    int id; 
+    char nome[64];
+    int capacidade;
+    char equipamentos[256]; // texto informativo
+    StatusLab status;
+} Laboratorio;
+
+typedef struct {
+    int id;
+    char solicitante[64]; // nome ou matrícula
+    int idLaboratorio;
+    Data data;
+    Horario inicio; // início do uso
+    Horario fim; // fim do uso
+} ReservaLab;
+
+// Coleções dinâmicas
+typedef struct {
+    Laboratorio *itens;
+    int qtd, cap;
+} VetLaboratorios;
+
+typedef struct {
+    ReservaLab *itens;
+    int qtd, cap;
+} VetReservasLab;
+
+
+// FUNCOES
+int cadastrarLaboratorio(Laboratorio *lab);
 void cadastrarReserva();
-=======
-int cadastrarLaboratorio(void);
->>>>>>> 12bbab0951ee9e5de6cc4de2511a4ac57c4eb0bd

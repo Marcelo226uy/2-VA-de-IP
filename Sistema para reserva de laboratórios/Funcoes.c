@@ -1,16 +1,15 @@
 #include <stdio.h>
-#include "codigoBase.h"
 #include "Funcoes.h"
 
-void cadastrarReserva(Data *prt){
-    printf("Defina o dia, mês e ano para sua reserva.\n")
-    scanf("%d %d %d", &prt->dia, &prt->mes, &&prt->ano);
+// void cadastrarReserva(Data *prt){
+//     printf("Defina o dia, mês e ano para sua reserva.\n");
+//     scanf("%d %d %d", &prt->dia, &prt->mes, &&prt->ano);
     
-}
+// }
 
 
 
-int cadastrarLaboratorio(void) {
+int cadastrarLaboratorio(Laboratorio *lab) {
     // ESTRUTURA DE LABORATORIO
     // typedef struct {
     //     int id; 
@@ -27,24 +26,22 @@ int cadastrarLaboratorio(void) {
     //     LAB_INDISPONIVEL = 0 // manutenção, bloqueio, etc.
     // } StatusLab;
 
-    Laboratorio lab;
-
     printf("Insira o ID:\n");
-    scanf("%d", &lab.id);
+    scanf("%d", &lab->id);
 
     printf("Insira o nome do lab:\n");
-    scanf("%s", &lab.nome);
+    scanf("%s", lab->nome);
 
     printf("Insira a capacidade:\n");
-    scanf("%d", &lab.capacidade);
+    scanf("%d", &lab->capacidade);
 
     printf("Insira uma descrição do lab:\n");
-    scanf("%s", &lab.equipamentos);
+    scanf("%s", lab->equipamentos);
 
     do {
         printf("Insira a situação do lab: [1] Ativo / [0] Inativo\n");
-        scanf("%d", (int *)&lab.status);
-    } while (lab.status != LAB_ATIVO && lab.status != LAB_INDISPONIVEL);
+        scanf("%d", &lab->status);
+    } while (lab->status != LAB_ATIVO && lab->status != LAB_INDISPONIVEL);
 
     return 0;
 }
