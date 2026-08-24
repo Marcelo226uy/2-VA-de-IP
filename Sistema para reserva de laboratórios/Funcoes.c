@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "Funcoes.h"
 
 // void cadastrarReserva(Data *prt){
@@ -9,7 +10,7 @@
 
 
 
-int cadastrarLaboratorio(Laboratorio *lab) {
+int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab) {
     // ESTRUTURA DE LABORATORIO
     // typedef struct {
     //     int id; 
@@ -26,6 +27,8 @@ int cadastrarLaboratorio(Laboratorio *lab) {
     //     LAB_INDISPONIVEL = 0 // manutenção, bloqueio, etc.
     // } StatusLab;
 
+
+    // Leitura de informações
     printf("Insira o ID:\n");
     scanf("%d", &lab->id);
 
@@ -40,8 +43,26 @@ int cadastrarLaboratorio(Laboratorio *lab) {
 
     do {
         printf("Insira a situação do lab: [1] Ativo / [0] Inativo\n");
-        scanf("%d", &lab->status);
+        scanf("%d", (int *)&lab->status);
     } while (lab->status != LAB_ATIVO && lab->status != LAB_INDISPONIVEL);
 
     return 0;
+}
+
+void alocarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
+    vetLab->itens = realloc(vetLab, (vetLab->cap + 5) * sizeof(Laboratorio));
+    vetLab->cap += 5;
+}
+
+void retirarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
+    vetLab->itens = realloc(vetLab, (vetLab->cap - 5 * sizeof(Laboratorio)));
+    vetLab->cap -= 5;
+}
+
+void verificarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
+    if (vetLab->cap - vetLab->qtd <= 1) { // pouca memória
+        alocarMemoriaVetLaboratorios(vetLab);
+    } else if (vetLab->cap - vetLab->qtd >= 10) { // muita memória
+        retirarMemoriaVetLaboratorios(vetLab);
+    }
 }

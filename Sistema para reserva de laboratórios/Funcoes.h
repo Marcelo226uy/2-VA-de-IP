@@ -44,5 +44,9 @@ typedef struct {
 
 
 // FUNCOES
-int cadastrarLaboratorio(Laboratorio *lab);
+int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab);
 void cadastrarReserva();
+
+void verificarMemoria(VetLaboratorios *vetLab);
+void alocarMemoria(VetLaboratorios *vetLab);
+void retirarMemoria(VetLaboratorios *vetLab);
