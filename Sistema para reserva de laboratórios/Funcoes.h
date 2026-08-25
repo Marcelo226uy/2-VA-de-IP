@@ -53,6 +53,9 @@ void exibirLaboratorioLinha(Laboratorio lab);
 void exibirRodapeTabela();
 char* obterStatusTexto(int status);
 
+void removerLaboratorio(VetLaboratorios *vetLab);
+int encontrarID(int id, VetLaboratorios *vetLab);
+void reindexarLaboratorios(VetLaboratorios *vetLab, int posicaoDeletar);
 
 void verificarMemoria(VetLaboratorios *vetLab);
 void alocarMemoria(VetLaboratorios *vetLab);
