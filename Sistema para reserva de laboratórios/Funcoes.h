@@ -44,9 +44,19 @@ typedef struct {
 
 
 // FUNCOES
-int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab);
 void cadastrarReserva();
+int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab);
 
 void verificarMemoria(VetLaboratorios *vetLab);
 void alocarMemoria(VetLaboratorios *vetLab);
 void retirarMemoria(VetLaboratorios *vetLab);
+
+// Funções para usar em outras funções
+int dataValida(Data *dt);
+int horarioInicioValido(Horario *hi);
+int horarioFinalValido(Horario *hf, Horario *hi);
+int aumentarCapacidadeReservas(VetReservasLab *reservas);
+
+// Funções para usar na função principal
+void cadastrarReserva(VetReservasLab *reservas);
+void inicializarReservas(VetReservasLab *vet);

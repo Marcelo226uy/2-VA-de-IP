@@ -20,5 +20,14 @@ int main(void){
 
     printf("%d\n", vetLab.itens[0].capacidade);
 
+    VetReservasLab reservas;
+
+    inicializarReservas(&reservas);
+
+    cadastrarReserva(&reservas);
+
+    free(reservas.itens);
+
+
     return 0;
 }
