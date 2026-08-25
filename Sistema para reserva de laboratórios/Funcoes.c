@@ -41,28 +41,49 @@ int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab) {
         lab[vetLab->qtd].status != LAB_INDISPONIVEL
     );
     
-    // Guardando valores
-    // vetLab->itens[vetLab->qtd] = lab; // pq com ponteiro deu certo?
-    vetLab->qtd++;
+    vetLab->qtd++; // incrementando +1 lab ao total de cadastrados
 
     return 0;
 }
 
-void alocarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
-    vetLab->itens = realloc(vetLab, (vetLab->cap + 5) * sizeof(Laboratorio));
-    vetLab->cap += 5;
+void listarLaboratorios(VetLaboratorios *vetLab) {
+    exibirCabecalhoTabela();
+
+    for (int i = 0; i < vetLab->qtd; i++) {
+        exibirLaboratorioLinha(vetLab->itens[i]);
+    }
+
+    exibirRodapeTabela();
 }
 
-void retirarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
-    vetLab->itens = realloc(vetLab, (vetLab->cap - 5 * sizeof(Laboratorio)));
-    vetLab->cap -= 5;
+void exibirCabecalhoTabela() {
+    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n");
+    printf("| ID  | Nome                           | Capacidade | Status        | Equipamentos                     |\n");
+    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n");
 }
 
-void verificarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
-    if (vetLab->cap - vetLab->qtd <= 1) { // pouca memória
-        alocarMemoriaVetLaboratorios(vetLab);
-    } else if (vetLab->cap - vetLab->qtd >= 10) { // muita memória
-        retirarMemoriaVetLaboratorios(vetLab);
+void exibirLaboratorioLinha(Laboratorio lab) {
+    // %.30s limita a exibicao para nao quebrar a estrutura da tabela
+    printf("| %-3d | %-30s | %-10d | %-13s | %-32.30s |\n", 
+           lab.id, 
+           lab.nome, 
+           lab.capacidade, 
+           obterStatusTexto(lab.status),
+           lab.equipamentos);
+}
+
+void exibirRodapeTabela() {
+    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n\n");
+}
+
+char* obterStatusTexto(int status) {
+    switch (status) {
+        case 0:
+            return "Inativo";
+            break;
+        case 1:
+            return "Ativo";
+            break;
     }
 }
 

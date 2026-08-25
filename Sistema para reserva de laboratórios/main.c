@@ -17,6 +17,9 @@ int main(void){
     vetLab.cap = 5;
 
     cadastrarLaboratorio(lab, &vetLab);
+    cadastrarLaboratorio(lab, &vetLab);
+
+    listarLaboratorios(&vetLab);
 
     VetReservasLab reservas;
 
