@@ -50,7 +50,7 @@ void listarLaboratorios(VetLaboratorios *vetLab) {
     exibirCabecalhoTabela();
 
     for (int i = 0; i < vetLab->qtd; i++) {
-        exibirLaboratorioLinha(vetLab->itens);
+        exibirLaboratorioLinha(vetLab->itens[i]);
     }
 
     exibirRodapeTabela();
@@ -62,14 +62,14 @@ void exibirCabecalhoTabela() {
     printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n");
 }
 
-void exibirLaboratorioLinha(Laboratorio *lab) {
+void exibirLaboratorioLinha(Laboratorio lab) {
     // %.30s limita a exibicao para nao quebrar a estrutura da tabela
     printf("| %-3d | %-30s | %-10d | %-13s | %-32.30s |\n", 
-           lab->id, 
-           lab->nome, 
-           lab->capacidade, 
-           obterStatusTexto(lab->status),
-           lab->equipamentos);
+           lab.id, 
+           lab.nome, 
+           lab.capacidade, 
+           obterStatusTexto(lab.status),
+           lab.equipamentos);
 }
 
 void exibirRodapeTabela() {

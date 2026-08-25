@@ -49,7 +49,7 @@ int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab);
 
 void listarLaboratorios(VetLaboratorios *vetLab);
 void exibirCabecalhoTabela();
-void exibirLaboratorioLinha(Laboratorio *lab);
+void exibirLaboratorioLinha(Laboratorio lab);
 void exibirRodapeTabela();
 char* obterStatusTexto(int status);
 
