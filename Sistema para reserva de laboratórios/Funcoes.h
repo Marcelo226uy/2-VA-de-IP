@@ -44,8 +44,12 @@ typedef struct {
 
 
 // FUNCOES
-int cadastrarLaboratorio(Laboratorio *lab);
 void cadastrarReserva();
+int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab);
+
+void verificarMemoria(VetLaboratorios *vetLab);
+void alocarMemoria(VetLaboratorios *vetLab);
+void retirarMemoria(VetLaboratorios *vetLab);
 
 // Funções para usar em outras funções
 int dataValida(Data *dt);

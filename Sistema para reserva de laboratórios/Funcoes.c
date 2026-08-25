@@ -1,16 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "Funcoes.h"
 
-int cadastrarLaboratorio(void) {
-// void cadastrarReserva(Data *prt){
-//     printf("Defina o dia, mês e ano para sua reserva.\n");
-//     scanf("%d %d %d", &prt->dia, &prt->mes, &&prt->ano);
-    
-// }
-
-
-
-int cadastrarLaboratorio(Laboratorio *lab) {
+int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab) {
     // ESTRUTURA DE LABORATORIO
     // typedef struct {
     //     int id; 
@@ -27,26 +19,52 @@ int cadastrarLaboratorio(Laboratorio *lab) {
     //     LAB_INDISPONIVEL = 0 // manutenção, bloqueio, etc.
     // } StatusLab;
 
+
+    // Leitura de informações
     printf("Insira o ID:\n");
-    scanf("%d", &lab->id);
+    scanf("%d", &lab[vetLab->qtd].id);
 
     printf("Insira o nome do lab:\n");
-    scanf("%s", lab->nome);
+    scanf("%s", lab[vetLab->qtd].nome);
 
     printf("Insira a capacidade:\n");
-    scanf("%d", &lab->capacidade);
+    scanf("%d", &lab[vetLab->qtd].capacidade);
 
     printf("Insira uma descrição do lab:\n");
-    scanf("%s", lab->equipamentos);
+    scanf("%s", lab[vetLab->qtd].equipamentos);
 
     do {
         printf("Insira a situação do lab: [1] Ativo / [0] Inativo\n");
-        scanf("%d", &lab->status);
-    } while (lab->status != LAB_ATIVO && lab->status != LAB_INDISPONIVEL);
+        scanf("%d", (int *) &lab[vetLab->qtd].status);
+    } while (
+        lab[vetLab->qtd].status != LAB_ATIVO && 
+        lab[vetLab->qtd].status != LAB_INDISPONIVEL
+    );
+    
+    // Guardando valores
+    // vetLab->itens[vetLab->qtd] = lab; // pq com ponteiro deu certo?
+    vetLab->qtd++;
 
     return 0;
 }
 
+void alocarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
+    vetLab->itens = realloc(vetLab, (vetLab->cap + 5) * sizeof(Laboratorio));
+    vetLab->cap += 5;
+}
+
+void retirarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
+    vetLab->itens = realloc(vetLab, (vetLab->cap - 5 * sizeof(Laboratorio)));
+    vetLab->cap -= 5;
+}
+
+void verificarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
+    if (vetLab->cap - vetLab->qtd <= 1) { // pouca memória
+        alocarMemoriaVetLaboratorios(vetLab);
+    } else if (vetLab->cap - vetLab->qtd >= 10) { // muita memória
+        retirarMemoriaVetLaboratorios(vetLab);
+    }
+}
 
 int horarioInicioValido(Horario *hi) {
 // Função para ver se o horário de início é válido
