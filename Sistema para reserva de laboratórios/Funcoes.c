@@ -64,16 +64,27 @@ void exibirCabecalhoTabela() {
 
 void exibirLaboratorioLinha(Laboratorio *lab) {
     // %.30s limita a exibicao para nao quebrar a estrutura da tabela
-    printf("| %-3d | %-30s | %-10d | %-13d | %-32.30s |\n", 
+    printf("| %-3d | %-30s | %-10d | %-13s | %-32.30s |\n", 
            lab->id, 
            lab->nome, 
            lab->capacidade, 
-           lab->status,
+           obterStatusTexto(lab->status),
            lab->equipamentos);
 }
 
 void exibirRodapeTabela() {
     printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n\n");
+}
+
+char* obterStatusTexto(int status) {
+    switch (status) {
+        case 0:
+            return "Inativo";
+            break;
+        case 1:
+            return "Ativo";
+            break;
+    }
 }
 
 int horarioInicioValido(Horario *hi) {

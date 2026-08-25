@@ -51,6 +51,7 @@ void listarLaboratorios(VetLaboratorios *vetLab);
 void exibirCabecalhoTabela();
 void exibirLaboratorioLinha(Laboratorio *lab);
 void exibirRodapeTabela();
+char* obterStatusTexto(int status);
 
 
 void verificarMemoria(VetLaboratorios *vetLab);
