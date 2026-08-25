@@ -18,16 +18,21 @@ int main(void){
 
     cadastrarLaboratorio(lab, &vetLab);
     cadastrarLaboratorio(lab, &vetLab);
+    cadastrarLaboratorio(lab, &vetLab);
 
     listarLaboratorios(&vetLab);
 
-    VetReservasLab reservas;
+    removerLaboratorio(&vetLab);
 
-    inicializarReservas(&reservas);
+    listarLaboratorios(&vetLab);
 
-    cadastrarReserva(&reservas);
+    // VetReservasLab reservas;
 
-    free(reservas.itens);
+    // inicializarReservas(&reservas);
+
+    // cadastrarReserva(&reservas);
+
+    // free(reservas.itens);
 
 
     return 0;

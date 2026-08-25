@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "Funcoes.h"
 
 int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab) {
@@ -56,6 +57,12 @@ void listarLaboratorios(VetLaboratorios *vetLab) {
     exibirRodapeTabela();
 }
 
+
+
+
+
+
+
 void exibirCabecalhoTabela() {
     printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n");
     printf("| ID  | Nome                           | Capacidade | Status        | Equipamentos                     |\n");
@@ -86,6 +93,51 @@ char* obterStatusTexto(int status) {
             break;
     }
 }
+
+
+
+
+
+void removerLaboratorio(VetLaboratorios *vetLab) {
+    printf("Selecione qual laboratório dos seguintes deletar:\n");
+    
+    listarLaboratorios(vetLab);
+    
+    int id;
+    bool repetiu = false;
+    do {
+        if (repetiu == true) {
+            printf("Insira um ID válido!\n");
+        }
+
+        printf("Insira o ID do lab: ");
+        scanf("%d", &id);
+
+        repetiu = true;
+    } while (encontrarID(id, vetLab) == -1);
+
+    reindexarLaboratorios(vetLab, encontrarID(id, vetLab));
+}
+
+int encontrarID(int id, VetLaboratorios *vetLab) { // ID encontrado retorna o índice
+    for (int i = 0; i < vetLab->qtd; i++) {
+        if (id == vetLab->itens[i].id) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void reindexarLaboratorios(VetLaboratorios *vetLab, int posicaoDeletar) {
+    vetLab->itens[posicaoDeletar] = vetLab->itens[vetLab->qtd - 1];
+    vetLab->qtd--;
+}
+
+
+
+
+
 
 int horarioInicioValido(Horario *hi) {
 // Função para ver se o horário de início é válido
