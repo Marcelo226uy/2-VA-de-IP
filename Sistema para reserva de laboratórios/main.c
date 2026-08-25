@@ -18,6 +18,8 @@ int main(void){
 
     cadastrarLaboratorio(lab, &vetLab);
 
+    listarLaboratorios(&vetLab);
+
     VetReservasLab reservas;
 
     inicializarReservas(&reservas);

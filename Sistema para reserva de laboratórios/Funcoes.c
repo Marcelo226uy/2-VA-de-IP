@@ -46,6 +46,36 @@ int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab) {
     return 0;
 }
 
+void listarLaboratorios(VetLaboratorios *vetLab) {
+    exibirCabecalhoTabela();
+
+    for (int i = 0; i < vetLab->qtd; i++) {
+        exibirLaboratorioLinha(vetLab->itens);
+    }
+
+    exibirRodapeTabela();
+}
+
+void exibirCabecalhoTabela() {
+    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n");
+    printf("| ID  | Nome                           | Capacidade | Status        | Equipamentos                     |\n");
+    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n");
+}
+
+void exibirLaboratorioLinha(Laboratorio *lab) {
+    // %.30s limita a exibicao para nao quebrar a estrutura da tabela
+    printf("| %-3d | %-30s | %-10d | %-13d | %-32.30s |\n", 
+           lab->id, 
+           lab->nome, 
+           lab->capacidade, 
+           lab->status,
+           lab->equipamentos);
+}
+
+void exibirRodapeTabela() {
+    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n\n");
+}
+
 int horarioInicioValido(Horario *hi) {
 // Função para ver se o horário de início é válido
 	if (hi->hora < 7 || hi->hora > 20) {

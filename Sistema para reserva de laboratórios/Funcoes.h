@@ -47,6 +47,12 @@ typedef struct {
 void cadastrarReserva();
 int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab);
 
+void listarLaboratorios(VetLaboratorios *vetLab);
+void exibirCabecalhoTabela();
+void exibirLaboratorioLinha(Laboratorio *lab);
+void exibirRodapeTabela();
+
+
 void verificarMemoria(VetLaboratorios *vetLab);
 void alocarMemoria(VetLaboratorios *vetLab);
 void retirarMemoria(VetLaboratorios *vetLab);
