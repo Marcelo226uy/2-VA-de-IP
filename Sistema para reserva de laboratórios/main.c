@@ -12,5 +12,14 @@ int main(void){
     int 
     cadastrarLaboratorio();
 
+    VetReservasLab reservas;
+
+    inicializarReservas(&reservas);
+
+    cadastrarReserva(&reservas);
+
+    free(reservas.itens);
+
+
     return 0;
 }

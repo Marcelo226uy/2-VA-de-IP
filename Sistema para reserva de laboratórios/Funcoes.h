@@ -1,7 +1,14 @@
 #include <stdio.h>
 
-<<<<<<< HEAD
-void cadastrarReserva();
-=======
 int cadastrarLaboratorio(void);
->>>>>>> 12bbab0951ee9e5de6cc4de2511a4ac57c4eb0bd
+
+
+// Funções para usar em outras funções
+int dataValida(Data *dt);
+int horarioInicioValido(Horario *hi);
+int horarioFinalValido(Horario *hf, Horario *hi);
+int aumentarCapacidadeReservas(VetReservasLab *reservas);
+
+// Funções para usar na função principal
+void cadastrarReserva(VetReservasLab *reservas);
+void inicializarReservas(VetReservasLab *vet);
