@@ -18,8 +18,6 @@ int main(void){
 
     cadastrarLaboratorio(lab, &vetLab);
 
-    printf("%d\n", vetLab.itens[0].capacidade);
-
     VetReservasLab reservas;
 
     inicializarReservas(&reservas);
