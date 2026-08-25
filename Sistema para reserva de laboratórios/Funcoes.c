@@ -41,29 +41,9 @@ int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab) {
         lab[vetLab->qtd].status != LAB_INDISPONIVEL
     );
     
-    // Guardando valores
-    // vetLab->itens[vetLab->qtd] = lab; // pq com ponteiro deu certo?
-    vetLab->qtd++;
+    vetLab->qtd++; // incrementando +1 lab ao total de cadastrados
 
     return 0;
-}
-
-void alocarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
-    vetLab->itens = realloc(vetLab, (vetLab->cap + 5) * sizeof(Laboratorio));
-    vetLab->cap += 5;
-}
-
-void retirarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
-    vetLab->itens = realloc(vetLab, (vetLab->cap - 5 * sizeof(Laboratorio)));
-    vetLab->cap -= 5;
-}
-
-void verificarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
-    if (vetLab->cap - vetLab->qtd <= 1) { // pouca memória
-        alocarMemoriaVetLaboratorios(vetLab);
-    } else if (vetLab->cap - vetLab->qtd >= 10) { // muita memória
-        retirarMemoriaVetLaboratorios(vetLab);
-    }
 }
 
 int horarioInicioValido(Horario *hi) {
