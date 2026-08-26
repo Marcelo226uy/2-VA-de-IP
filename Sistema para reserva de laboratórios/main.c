@@ -22,7 +22,7 @@ int main(void){
 
     listarLaboratorios(&vetLab);
 
-    removerLaboratorio(&vetLab);
+    atualizarLaboratorio(&vetLab);
 
     listarLaboratorios(&vetLab);
 
