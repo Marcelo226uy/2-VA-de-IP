@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "Funcoes.h"
 
 int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab) {
@@ -100,23 +101,21 @@ char* obterStatusTexto(int status) {
 
 void removerLaboratorio(VetLaboratorios *vetLab) {
     printf("Selecione qual laboratório dos seguintes deletar:\n");
-    
-    listarLaboratorios(vetLab);
-    
-    int id;
-    bool repetiu = false;
+
+    int id = escolherLaboratorio(vetLab);
+
+    // CONFIRMAÇÃO
+    printf("Confirma a remoção desse laboratório?\n");
+
+    int confirmado;
     do {
-        if (repetiu == true) {
-            printf("Insira um ID válido!\n");
-        }
+        printf("[1] Confirmo\n [0] Não confirmo\n Sua opção: ");
+        scanf("%d", &confirmado);
+    } while (confirmado < 0 || confirmado > 1);
 
-        printf("Insira o ID do lab: ");
-        scanf("%d", &id);
-
-        repetiu = true;
-    } while (encontrarID(id, vetLab) == -1);
-
-    reindexarLaboratorios(vetLab, encontrarID(id, vetLab));
+    if (confirmado == 1) {
+        reindexarLaboratorios(vetLab, encontrarID(id, vetLab));
+    };
 }
 
 int encontrarID(int id, VetLaboratorios *vetLab) { // ID encontrado retorna o índice
@@ -132,6 +131,82 @@ int encontrarID(int id, VetLaboratorios *vetLab) { // ID encontrado retorna o í
 void reindexarLaboratorios(VetLaboratorios *vetLab, int posicaoDeletar) {
     vetLab->itens[posicaoDeletar] = vetLab->itens[vetLab->qtd - 1];
     vetLab->qtd--;
+}
+
+
+
+
+
+int escolherLaboratorio(VetLaboratorios *vetLab) {
+    listarLaboratorios(vetLab);
+    
+    int id;
+    bool repetiu = false;
+    do {
+        if (repetiu == true) {
+            printf("Insira um ID válido!\n");
+        }
+
+        printf("Insira o ID do lab: ");
+        scanf("%d", &id);
+
+        repetiu = true;
+    } while (encontrarID(id, vetLab) == -1);
+
+    return id;
+};
+
+
+
+
+
+
+void atualizarLaboratorio(VetLaboratorios *vetLab) {
+    printf("Escolha um laboratório para editar:\n");
+
+    int id = escolherLaboratorio(vetLab);
+    int indice = encontrarID(id, vetLab);
+
+    int escolha;
+    do {
+        printf("Qual informação deseja editar?\n");
+        printf("[1] Nome\n [2] Capacidade\n [3] Detalhes\n [4] Status\n [0] Sair\n");
+
+        do {
+            scanf("%d", &escolha);
+        } while (escolha < 0 || escolha > 4);
+        
+        while (getchar() != '\n'); // limpa o buffer do teclado que impede o fgets de ler correto
+
+        switch (escolha) {
+            case 1: 
+                printf("Insira o nome do lab: ");
+                fgets(vetLab->itens[indice].nome, sizeof(vetLab->itens[indice].nome), stdin);
+                vetLab->itens[indice].nome[strcspn(vetLab->itens[indice].nome, "\n")] = '\0'; // limpa o "\n" para o fgets não guardar na variável
+                break;
+            case 2:
+                printf("Insira a capacidade do lab: ");
+                scanf("%d", &vetLab->itens[indice].capacidade);
+                break;
+            case 3:
+                printf("Insira os detalhes do lab: ");
+                fgets(vetLab->itens[indice].equipamentos, sizeof(vetLab->itens[indice].equipamentos), stdin);
+                vetLab->itens[indice].equipamentos[strcspn(vetLab->itens[indice].equipamentos, "\n")] = '\0';
+                break;
+            case 4:
+                do {
+                    printf("Insira a situação do lab: [1] Ativo / [0] Inativo\n");
+                    scanf("%d", (int *) vetLab->itens[indice].status);
+                } while (
+                    vetLab->itens[indice].status != LAB_ATIVO && 
+                    vetLab->itens[indice].status != LAB_INDISPONIVEL
+                );
+                break;
+            case 0:
+                break;
+        }
+
+    } while (escolha != 0);
 }
 
 

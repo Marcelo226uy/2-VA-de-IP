@@ -57,6 +57,10 @@ void removerLaboratorio(VetLaboratorios *vetLab);
 int encontrarID(int id, VetLaboratorios *vetLab);
 void reindexarLaboratorios(VetLaboratorios *vetLab, int posicaoDeletar);
 
+int escolherLaboratorio(VetLaboratorios *vetLab);
+
+void atualizarLaboratorio(VetLaboratorios *vetLab);
+
 void verificarMemoria(VetLaboratorios *vetLab);
 void alocarMemoria(VetLaboratorios *vetLab);
 void retirarMemoria(VetLaboratorios *vetLab);
