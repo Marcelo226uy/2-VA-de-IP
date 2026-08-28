@@ -23,21 +23,41 @@ int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab) {
 
 
     // Leitura de informações
-    printf("Insira o ID:\n");
-    scanf("%d", &lab[vetLab->qtd].id);
+    // Modifiquei pra aceitar apenas IDs positivos maiores que 0
+    do { 
+        printf("Insira o ID:\n"); 
+        scanf("%d", &lab[vetLab->qtd].id); 
+        if (lab[vetLab->qtd].id <= 0) { 
+            printf("ID inválido! Insira um ID positivo.\n"); 
+        } 
+    } while (lab[vetLab->qtd].id <= 0);
 
-    printf("Insira o nome do lab:\n");
-    scanf("%s", lab[vetLab->qtd].nome);
+    // Alterei pra não ter problema com nome compostos
+    while (getchar() != '\n'); 
+    printf("Insira o nome do laboratório:\n"); 
+    fgets(lab[vetLab->qtd].nome, 64, stdin);
 
-    printf("Insira a capacidade:\n");
-    scanf("%d", &lab[vetLab->qtd].capacidade);
+    // Modifiquei pra aceitar apenas Capacidades positivas maiores que 0 igual o do ID
+    do { 
+        printf("Insira a capacidade:\n"); 
+        scanf("%d", &lab[vetLab->qtd].capacidade); 
+        if (lab[vetLab->qtd].capacidade <= 0) { 
+            printf("Capacidade inválida! Insira um valor positivo.\n"); 
+        } 
+    } while (lab[vetLab->qtd].capacidade <= 0);
 
-    printf("Insira uma descrição do lab:\n");
-    scanf("%s", lab[vetLab->qtd].equipamentos);
+    // Alterei pra não ter problema com nome compostos
+    while (getchar() != '\n'); 
+    printf("Insira uma descrição do laboratório:\n"); 
+    fgets(lab[vetLab->qtd].equipamentos, 256, stdin);
 
+    // Modifiquei para caso colocar um valor que não pode ele voltar
     do {
         printf("Insira a situação do lab: [1] Ativo / [0] Inativo\n");
         scanf("%d", (int *) &lab[vetLab->qtd].status);
+        if (lab[vetLab->qtd].status != LAB_ATIVO && lab[vetLab->qtd].status != LAB_INDISPONIVEL) { 
+            printf("Situação de laboratório inválida! Digite 1 para Ativo ou 0 para Inativo.\n");
+        }
     } while (
         lab[vetLab->qtd].status != LAB_ATIVO && 
         lab[vetLab->qtd].status != LAB_INDISPONIVEL
@@ -212,7 +232,16 @@ void atualizarLaboratorio(VetLaboratorios *vetLab) {
 
 
 
+int proximoIdReserva(VetReservasLab *vet) {
+    int maior = 0;
 
+    for (int i = 0; i < vet->qtd; i++) {
+        if (vet->itens[i].id > maior)
+            maior = vet->itens[i].id;
+    }
+
+    return maior + 1;
+}
 
 int horarioInicioValido(Horario *hi) {
 // Função para ver se o horário de início é válido
@@ -286,48 +315,64 @@ int aumentarCapacidadeReservas(VetReservasLab *reservas) {
     return 1;
 }
 
-void cadastrarReserva(VetReservasLab *reservas) {
+void cadastrarReserva(VetReservasLab *reservas, VetLaboratorios *laboratorios) { // Checar se é realemnte *laboratorios o ponteiro
 // Função para fazer a reserva
     ReservaLab *r;
-
+    
     if (reservas->qtd == reservas->cap) {
-        if (!aumentarCapacidadeReservas(reservas)){
-             return;
+        if (!aumentarCapacidadeReservas(reservas)) { 
+            return;
         }
     }
-    
 
     r = &reservas->itens[reservas->qtd];
 
+    r->id = proximoIdReserva(reservas); // Ver se está alocando o ID certinho OBS. Aparentemente está agora tem que ver na hora de printar
+
+    printf("Insira o nome ou matrícula do solicitante:\n");
+    scanf(" %63[^\n]", r->solicitante);
+
+    printf("Insira o ID do laboratório:\n");
+    scanf("%d", &r->idLaboratorio);
+
+    // Colocar alguma função que busque o laboratório pelo id e veja se ele está disponível
+
     while (1) {
-        printf("Defina o dia, mes e ano para sua reserva:\n");
+        printf("Defina o dia, mês e ano para sua reserva:\n");
         scanf("%d %d %d", &r->data.dia, &r->data.mes, &r->data.ano);
 
-        if (dataValida(&r->data))
+        if (dataValida(&r->data)) {
             break;
+        }
 
-        printf("Data invalida! Tente novamente.\n");
+        printf("Data inválida! Tente outra data.\n");
     }
 
     while (1) {
-        printf("Defina o horario de inicio da sua reserva:\n");
+        printf("Defina o horário de início da sua reserva:\n");
         scanf("%d %d", &r->inicio.hora, &r->inicio.minuto);
 
-        if (horarioInicioValido(&r->inicio))
+        if (horarioInicioValido(&r->inicio)) { 
             break;
+        }
 
-        printf("Horario invalido! Tente novamente.\n");
+        printf("Horário inválido! Tente outro horário.\n");
     }
 
     while (1) {
-        printf("Defina o horario final da sua reserva:\n");
+        printf("Defina o horário de término da sua reserva:\n");
         scanf("%d %d", &r->fim.hora, &r->fim.minuto);
 
-        if (horarioFinalValido(&r->fim, &r->inicio))
+        if (horarioFinalValido(&r->fim, &r->inicio)) { 
             break;
+        }
 
-        printf("Horario invalido! Tente novamente.\n");
+        printf("Horário inválido! Tente outro horário.\n");
     }
+
+// Colocar uma função pra checar se não dá conflito de Horários nos laboratórios já reservados
+
+    r->id = reservas->qtd + 1;
 
     reservas->qtd++;
 
