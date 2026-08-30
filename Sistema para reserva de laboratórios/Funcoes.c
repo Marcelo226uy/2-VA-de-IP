@@ -214,6 +214,17 @@ void atualizarLaboratorio(VetLaboratorios *vetLab) {
 
 
 
+
+void alocarMemoriaVetLaboratorios(VetLaboratorios *vetLab) {
+    vetLab->itens = realloc(vetLab->itens, (vetLab->cap + 5) * sizeof(vetLab->itens));
+    vetLab->cap += 5;
+}
+
+
+
+
+
+
 int horarioInicioValido(Horario *hi) {
 // Função para ver se o horário de início é válido
 	if (hi->hora < 7 || hi->hora > 20) {

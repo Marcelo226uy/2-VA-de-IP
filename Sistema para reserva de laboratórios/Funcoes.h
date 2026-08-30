@@ -61,9 +61,7 @@ int escolherLaboratorio(VetLaboratorios *vetLab);
 
 void atualizarLaboratorio(VetLaboratorios *vetLab);
 
-void verificarMemoria(VetLaboratorios *vetLab);
-void alocarMemoria(VetLaboratorios *vetLab);
-void retirarMemoria(VetLaboratorios *vetLab);
+void alocarMemoriaVetLaboratorios(VetLaboratorios *vetLab);
 
 // Funções para usar em outras funções
 int dataValida(Data *dt);

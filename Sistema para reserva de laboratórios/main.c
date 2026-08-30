@@ -19,12 +19,27 @@ int main(void){
     cadastrarLaboratorio(lab, &vetLab);
     cadastrarLaboratorio(lab, &vetLab);
     cadastrarLaboratorio(lab, &vetLab);
+    cadastrarLaboratorio(lab, &vetLab);
 
+    printf("Tamanho vetor de labs -> %d\n", vetLab.qtd);
     listarLaboratorios(&vetLab);
 
-    atualizarLaboratorio(&vetLab);
 
+    if (vetLab.cap - vetLab.qtd <= 1) {
+        alocarMemoriaVetLaboratorios(&vetLab);
+    }
+
+    cadastrarLaboratorio(lab, &vetLab);
+    cadastrarLaboratorio(lab, &vetLab);
+    cadastrarLaboratorio(lab, &vetLab);
+    
+
+    printf("Tamanho vetor de labs -> %d\n", vetLab.qtd);
     listarLaboratorios(&vetLab);
+
+    // atualizarLaboratorio(&vetLab);
+
+    // listarLaboratorios(&vetLab);
 
     // VetReservasLab reservas;
 
