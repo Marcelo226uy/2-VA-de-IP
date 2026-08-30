@@ -70,7 +70,8 @@ int dataValida(Data *dt);
 int horarioInicioValido(Horario *hi);
 int horarioFinalValido(Horario *hf, Horario *hi);
 int aumentarCapacidadeReservas(VetReservasLab *reservas);
+int proximoIdReserva(VetReservasLab *vet);
 
 // Funções para usar na função principal
-void cadastrarReserva(VetReservasLab *reservas);
+void cadastrarReserva(VetReservasLab *reservas, VetLaboratorios *laboratorios);
 void inicializarReservas(VetReservasLab *vet);
