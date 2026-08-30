@@ -65,13 +65,30 @@ void verificarMemoria(VetLaboratorios *vetLab);
 void alocarMemoria(VetLaboratorios *vetLab);
 void retirarMemoria(VetLaboratorios *vetLab);
 
-// Funções para usar em outras funções
+// Funções principais da reserva
+void cadastrarReserva(VetReservasLab *reservas, VetLaboratorios *vetLab);
+void atualizarReserva(VetReservasLab *reservas, VetLaboratorios *laboratorios);
+void removerReserva(VetReservasLab *reservas);
+void listarReservas(VetReservasLab *reservas, VetLaboratorios *laboratorios);
+void relatorioPorData(VetReservasLab *reservas, VetLaboratorios *laboratorios);
+
+// Funções auxiliares da reserva
+
+// Relação com a data da reserva / Validação
 int dataValida(Data *dt);
 int horarioInicioValido(Horario *hi);
 int horarioFinalValido(Horario *hf, Horario *hi);
-int aumentarCapacidadeReservas(VetReservasLab *reservas);
-int proximoIdReserva(VetReservasLab *vet);
+int verificarDisponibilidade(VetReservasLab *reservas, int idLaboratorio, Data data, Horario inicio, Horario fim, int idReservaIgnorar);
 
-// Funções para usar na função principal
-void cadastrarReserva(VetReservasLab *reservas, VetLaboratorios *laboratorios);
+// Relação com alloc
 void inicializarReservas(VetReservasLab *vet);
+int aumentarCapacidadeReservas(VetReservasLab *reservas);
+void liberarReservas(VetReservasLab *vet);
+
+// Relação com fopen
+void carregarReservas(VetReservasLab *vet);
+void salvarReservas(VetReservasLab *vet);
+
+// Relação com ID
+int buscarReservaPorId(VetReservasLab *vet, int id);
+int proximoIdReserva(VetReservasLab *vet);
