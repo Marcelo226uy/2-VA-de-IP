@@ -2,74 +2,138 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+
 #include "Funcoes.h"
+// Funções gerais
 
-int cadastrarLaboratorio(Laboratorio *lab, VetLaboratorios *vetLab) {
-    // ESTRUTURA DE LABORATORIO
-    // typedef struct {
-    //     int id; 
-    //     char nome[64];
-    //     int capacidade;
-    //     char equipamentos[256]; // texto informativo
-    //     StatusLab status;
-    // } Laboratorio;
+int lerInteiro(int *valor) {
+// Função para impedir que scanf deixe lixo no buffer (o \n principalmente) e para permitir validar entradas que não são números.
+    char linha[100];
+    char extra;
 
+    if (fgets(linha, sizeof(linha), stdin) == NULL)
+        return 0;
 
-    // ESTRUTURA DE STATUSLAB
-    // typedef enum {
-    //     LAB_ATIVO = 1,
-    //     LAB_INDISPONIVEL = 0 // manutenção, bloqueio, etc.
-    // } StatusLab;
+    if (sscanf(linha, " %d %c", valor, &extra) != 1)
+        return 0;
 
-
-    // Leitura de informações
-    // Modifiquei pra aceitar apenas IDs positivos maiores que 0
-    do { 
-        printf("Insira o ID:\n"); 
-        scanf("%d", &lab[vetLab->qtd].id); 
-        if (lab[vetLab->qtd].id <= 0) { 
-            printf("ID inválido! Insira um ID positivo.\n"); 
-        } 
-    } while (lab[vetLab->qtd].id <= 0);
-
-    // Alterei pra não ter problema com nome compostos
-    while (getchar() != '\n'); 
-    printf("Insira o nome do laboratório:\n"); 
-    fgets(lab[vetLab->qtd].nome, 64, stdin);
-
-    // Modifiquei pra aceitar apenas Capacidades positivas maiores que 0 igual o do ID
-    do { 
-        printf("Insira a capacidade:\n"); 
-        scanf("%d", &lab[vetLab->qtd].capacidade); 
-        if (lab[vetLab->qtd].capacidade <= 0) { 
-            printf("Capacidade inválida! Insira um valor positivo.\n"); 
-        } 
-    } while (lab[vetLab->qtd].capacidade <= 0);
-
-    // Alterei pra não ter problema com nome compostos
-    while (getchar() != '\n'); 
-    printf("Insira uma descrição do laboratório:\n"); 
-    fgets(lab[vetLab->qtd].equipamentos, 256, stdin);
-
-    // Modifiquei para caso colocar um valor que não pode ele voltar
-    do {
-        printf("Insira a situação do lab: [1] Ativo / [0] Inativo\n");
-        scanf("%d", (int *) &lab[vetLab->qtd].status);
-        if (lab[vetLab->qtd].status != LAB_ATIVO && lab[vetLab->qtd].status != LAB_INDISPONIVEL) { 
-            printf("Situação de laboratório inválida! Digite 1 para Ativo ou 0 para Inativo.\n");
-        }
-    } while (
-        lab[vetLab->qtd].status != LAB_ATIVO && 
-        lab[vetLab->qtd].status != LAB_INDISPONIVEL
-    );
-    
-    vetLab->qtd++; // incrementando +1 lab ao total de cadastrados
-
-    return 0;
+    return 1;
 }
 
+void lerTexto(char *texto, int tamanho) {
+// Função para ler o texto e remover o '\n' colocado pelo fgets.
+    if (fgets(texto, tamanho, stdin) != NULL) {
+        texto[strcspn(texto, "\n")] = '\0';
+    }
+}
+
+// Funções principais dos laboratórios
+int cadastrarLaboratorio(VetLaboratorios *vetLab) {
+    Laboratorio *lab;
+
+    if (vetLab->qtd == vetLab->cap) {
+        if (!aumentarCapacidadeLaboratorios(vetLab)) {
+            return 0;
+        }
+    }
+
+    lab = &vetLab->itens[vetLab->qtd];
+
+//      ID do laboratório
+    do {
+
+        printf("\nInsira o ID do laboratório: ");
+
+        if (!lerInteiro(&lab->id)) {
+            printf("ID inválido. Digite um número.\n");
+            continue;
+        }
+
+        if (lab->id <= 0) {
+            printf("O ID deve ser positivo.\n");
+            continue;
+        }
+
+        if (encontrarID(lab->id, vetLab) != -1) {
+            printf("Esse ID de laboratório já existe. Escolha outro.\n");
+            continue;
+        }
+
+        break;
+
+    } while (1);
+
+//      Nome do laboratório
+    do {
+        printf("Insira o nome do laboratório: ");
+
+        lerTexto(lab->nome, sizeof(lab->nome));
+
+        if (strlen(lab->nome) == 0) {
+            printf("O nome e obrigatório.\n");
+        }
+
+    } while (strlen(lab->nome) == 0);
+
+//      Capacidade do laboratório
+    do {
+
+        printf("Insira a capacidade do laboratório: ");
+
+        if (!lerInteiro(&lab->capacidade)) {
+            printf("Capacidade inválida.\n");
+            continue;
+        }
+
+        if (lab->capacidade <= 0) {
+            printf("A capacidade deve ser maior que zero.\n");
+        }
+
+    } while (lab->capacidade <= 0);
+
+//      Equipamentos do laboratório
+    printf("Insira os equipamentos do laboratório: ");
+
+    lerTexto(lab->equipamentos, sizeof(lab->equipamentos));
+
+//      Status do laboratório
+    int status;
+
+    do {
+        printf("Insira a situação do lab: [1] Ativo / [0] Inativo\n");
+
+        if (!lerInteiro(&status)) {
+            printf("Status inválido.\n");
+            continue;
+        }
+
+        if (status != LAB_ATIVO &&
+            status != LAB_INDISPONIVEL) {
+
+            printf("Situação de laboratório inválida! Digite 1 para Ativo ou 0 para Inativo.\n");
+        }
+
+    } while (status != LAB_ATIVO &&
+             status != LAB_INDISPONIVEL);
+
+    lab->status = (StatusLab)status;
+
+    vetLab->qtd++;
+
+    salvarLaboratorios(vetLab);
+
+    printf("Laboratório cadastrado com sucesso!\n");
+
+    return 1;
+}
 
 void listarLaboratorios(VetLaboratorios *vetLab) {
+
+    if (vetLab->qtd == 0) {
+        printf("\nNenhum laboratório cadastrado.\n");
+        return;
+    }
+
     exibirCabecalhoTabela();
 
     for (int i = 0; i < vetLab->qtd; i++) {
@@ -79,63 +143,230 @@ void listarLaboratorios(VetLaboratorios *vetLab) {
     exibirRodapeTabela();
 }
 
+void atualizarLaboratorio(VetLaboratorios *vetLab) {
 
-void exibirCabecalhoTabela() {
-    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n");
-    printf("| ID  | Nome                           | Capacidade | Status        | Equipamentos                     |\n");
-    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n");
-}
-
-
-void exibirLaboratorioLinha(Laboratorio lab) {
-    // %.30s limita a exibicao para nao quebrar a estrutura da tabela
-    printf("| %-3d | %-30s | %-10d | %-13s | %-32.30s |\n", 
-           lab.id, 
-           lab.nome, 
-           lab.capacidade, 
-           obterStatusTexto(lab.status),
-           lab.equipamentos);
-}
-
-
-void exibirRodapeTabela() {
-    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n\n");
-}
-
-
-char* obterStatusTexto(int status) {
-    switch (status) {
-        case 0:
-            return "Inativo";
-            break;
-        case 1:
-            return "Ativo";
-            break;
+    if (vetLab->qtd == 0) {
+        printf("\nNenhum laboratório cadastrado.\n");
+        return;
     }
-}
-
-
-void removerLaboratorio(VetLaboratorios *vetLab) {
-    printf("Selecione qual laboratório dos seguintes deletar:\n");
 
     int id = escolherLaboratorio(vetLab);
 
-    // CONFIRMAÇÃO
-    printf("Confirma a remoção desse laboratório?\n");
+    if (id == -1)
+        return;
 
-    int confirmado;
+    int indice = encontrarID(id, vetLab);
+
+    int escolha;
+
     do {
-        printf("[1] Confirmo\n [0] Não confirmo\n Sua opção: ");
-        scanf("%d", &confirmado);
-    } while (confirmado < 0 || confirmado > 1);
+        printf("\nQual informação deseja editar?\n");
+        printf("[1] Nome\n");
+        printf("[2] Capacidade\n");
+        printf("[3] Equipamentos\n");
+        printf("[4] Status\n");
+        printf("[0] Voltar\n");
+        printf("Opção: ");
 
-    if (confirmado == 1) {
-        reindexarLaboratorios(vetLab, encontrarID(id, vetLab));
-    };
+        if (!lerInteiro(&escolha)) {
+            printf("Opção inválida.\n");
+            continue;
+        }
+
+        switch (escolha) {
+            
+            case 1:
+
+                do {
+                    printf("Novo nome: ");
+
+                    lerTexto(vetLab->itens[indice].nome, sizeof(vetLab->itens[indice].nome));
+
+                    if (strlen(vetLab->itens[indice].nome) == 0) {
+                        printf("O nome não pode ficar vazio.\n");
+                    }
+
+                } while (strlen(vetLab->itens[indice].nome) == 0);
+
+                salvarLaboratorios(vetLab);
+
+                printf("Nome atualizado.\n");
+
+                break;
+
+            case 2:
+
+                do {
+
+                    printf("Nova capacidade: ");
+
+                    if (!lerInteiro(&vetLab->itens[indice].capacidade)) {
+
+                        printf("Valor inválido.\n");
+                        continue;
+                    }
+
+                    if (vetLab->itens[indice].capacidade <= 0) {
+                        printf("A capacidade deve ser positiva.\n");
+                    }
+
+                } while (vetLab->itens[indice].capacidade <= 0);
+
+                salvarLaboratorios(vetLab);
+
+                printf("Capacidade atualizada.\n");
+
+                break;
+
+            case 3:
+
+                printf("Novos equipamentos: ");
+
+                lerTexto(vetLab->itens[indice].equipamentos,sizeof(vetLab->itens[indice].equipamentos));
+
+                salvarLaboratorios(vetLab);
+
+                printf("Equipamentos atualizados.\n");
+
+                break;
+
+
+            case 4: {
+
+                int status;
+
+                do {
+
+                    printf("Insira a nova situação do lab: [1] Ativo / [0] Inativo\n");
+                    
+                    if (!lerInteiro(&status)) {
+                        printf("Status inválido.\n");
+                        continue;
+                    }
+
+                    if (status != 0 && status != 1) {
+                        printf("Digite somente 1 ou 0.\n");
+                    }
+
+                } while (status != 0 && status != 1);
+
+                vetLab->itens[indice].status = (StatusLab)status;
+
+                salvarLaboratorios(vetLab);
+
+                printf("Status atualizado.\n");
+
+                break;
+            }
+
+            case 0:
+                break;
+
+            default:
+                printf("Opcao inválida.\n");
+        }
+
+    } while (escolha != 0);
 }
 
+void removerLaboratorio(VetLaboratorios *vetLab) {
 
-int encontrarID(int id, VetLaboratorios *vetLab) { // ID encontrado retorna o índice
+    if (vetLab->qtd == 0) {
+        printf("\nNenhum laboratório cadastrado.\n");
+        return;
+    }
+
+    int id = escolherLaboratorio(vetLab);
+
+    if (id == -1)
+        return;
+
+    int indice = encontrarID(id, vetLab);
+
+    printf("\nATENÇÃO: Verifique se NÃO existem reservas associadas.\n");
+
+    int confirmado;
+
+    do {
+        printf("Confirma a remoção? [1] Sim [0] Não\n");
+        printf("Opção: ");
+
+        if (!lerInteiro(&confirmado)) {
+            printf("Opcao inválida.\n");
+            continue;
+        }
+
+        if (confirmado != 0 && confirmado != 1) {
+            printf("Digite 1 ou 0.\n");
+        }
+
+    } while (confirmado != 0 && confirmado != 1);
+
+
+    if (confirmado == 0) {
+        printf("Remoção cancelada.\n");
+        return;
+    }
+
+    
+//  Preserva a ordem do vetor.
+    for (int i = indice; i < vetLab->qtd - 1; i++) {
+        vetLab->itens[i] = vetLab->itens[i + 1];
+    }
+
+    vetLab->qtd--;
+
+    salvarLaboratorios(vetLab);
+
+    printf("Laboratório removido com sucesso.\n");
+}
+
+// Funções auxiliares dos laboratórios
+
+// Relação com alloc e memória
+void inicializarLaboratorios(VetLaboratorios *vet) {
+
+    vet->qtd = 0;
+    vet->cap = 10;
+
+    vet->itens = malloc(vet->cap * sizeof(Laboratorio));
+
+    if (vet->itens == NULL) {
+        printf("Erro ao alocar memoria dos laboratorios.\n");
+        exit(1);
+    }
+}
+
+int aumentarCapacidadeLaboratorios(VetLaboratorios *vet) {
+
+    int novaCapacidade = vet->cap + 10;
+
+// O ponteiro temporário é pra evitar perder o endereço original caso o realloc dê erro.
+    Laboratorio *temporario = realloc(vet->itens, novaCapacidade * sizeof(Laboratorio));
+
+    if (temporario == NULL) {
+        printf("Erro ao aumentar memoria dos laboratorios.\n");
+        return 0;
+    }
+
+    vet->itens = temporario;
+    vet->cap = novaCapacidade;
+
+    return 1;
+}
+
+void liberarLaboratorios(VetLaboratorios *vet) {
+// Função para liberar espaço inutil dos laboratórios
+    free(vet->itens);
+
+    vet->itens = NULL;
+    vet->qtd = 0;
+    vet->cap = 0;
+}
+
+// Relação com ID
+int encontrarID(int id, VetLaboratorios *vetLab) {
+
     for (int i = 0; i < vetLab->qtd; i++) {
         if (id == vetLab->itens[i].id) {
             return i;
@@ -145,299 +376,281 @@ int encontrarID(int id, VetLaboratorios *vetLab) { // ID encontrado retorna o í
     return -1;
 }
 
-
-void reindexarLaboratorios(VetLaboratorios *vetLab, int posicaoDeletar) {
-    vetLab->itens[posicaoDeletar] = vetLab->itens[vetLab->qtd - 1];
-    vetLab->qtd--;
-}
-
-
 int escolherLaboratorio(VetLaboratorios *vetLab) {
+
+    if (vetLab->qtd == 0) {
+        printf("\nNenhum laboratório cadastrado.\n");
+        return -1;
+    }
+
     listarLaboratorios(vetLab);
-    
+
     int id;
-    bool repetiu = false;
-    do {
-        if (repetiu == true) {
-            printf("Insira um ID válido!\n");
+
+    while (1) {
+
+        printf("Insira o ID do laboratório: ");
+
+        if (!lerInteiro(&id)) {
+            printf("ID inválido.\n");
+            continue;
         }
 
-        printf("Insira o ID do lab: ");
-        scanf("%d", &id);
-
-        repetiu = true;
-    } while (encontrarID(id, vetLab) == -1);
-
-    return id;
-};
-
-
-void atualizarLaboratorio(VetLaboratorios *vetLab) {
-    printf("Escolha um laboratório para editar:\n");
-
-    int id = escolherLaboratorio(vetLab);
-    int indice = encontrarID(id, vetLab);
-
-    int escolha;
-    do {
-        printf("Qual informação deseja editar?\n");
-        printf("[1] Nome\n [2] Capacidade\n [3] Detalhes\n [4] Status\n [0] Sair\n");
-
-        do {
-            scanf("%d", &escolha);
-        } while (escolha < 0 || escolha > 4);
-        
-        while (getchar() != '\n'); // limpa o buffer do teclado que impede o fgets de ler correto
-
-        switch (escolha) {
-            case 1: 
-                printf("Insira o nome do lab: ");
-                fgets(vetLab->itens[indice].nome, sizeof(vetLab->itens[indice].nome), stdin);
-                vetLab->itens[indice].nome[strcspn(vetLab->itens[indice].nome, "\n")] = '\0'; // limpa o "\n" para o fgets não guardar na variável
-                break;
-            case 2:
-                printf("Insira a capacidade do lab: ");
-                scanf("%d", &vetLab->itens[indice].capacidade);
-                break;
-            case 3:
-                printf("Insira os detalhes do lab: ");
-                fgets(vetLab->itens[indice].equipamentos, sizeof(vetLab->itens[indice].equipamentos), stdin);
-                vetLab->itens[indice].equipamentos[strcspn(vetLab->itens[indice].equipamentos, "\n")] = '\0';
-                break;
-            case 4:
-                do {
-                    printf("Insira a situação do lab: [1] Ativo / [0] Inativo\n");
-                    scanf("%d", (int *) vetLab->itens[indice].status);
-                } while (
-                    vetLab->itens[indice].status != LAB_ATIVO && 
-                    vetLab->itens[indice].status != LAB_INDISPONIVEL
-                );
-                break;
-            case 0:
-                break;
+        if (encontrarID(id, vetLab) == -1) {
+            printf("Laboratório não foi encontrado.\n");
+            continue;
         }
 
-    } while (escolha != 0);
+        return id;
+    }
 }
 
+// Funções para a lista
 
-// Funções principais da reserva
+void exibirCabecalhoTabela(void) {
 
+    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n");
+    printf("| ID  | Nome                           | Capacidade | Status        | Equipamentos                     |\n");
+    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n");
+}
+
+void exibirLaboratorioLinha(Laboratorio lab) {
+
+    printf("| %-3d | %-30.30s | %-10d | %-13s | %-32.32s |\n",
+           lab.id,
+           lab.nome,
+           lab.capacidade,
+           obterStatusTexto(lab.status),
+           lab.equipamentos);
+}
+
+void exibirRodapeTabela(void) {
+
+    printf("+-----+--------------------------------+------------+---------------+----------------------------------+\n\n");
+}
+
+const char *obterStatusTexto(StatusLab status) {
+
+    switch (status) {
+        case LAB_ATIVO:
+            return "Ativo";
+        case LAB_INDISPONIVEL:
+            return "Inativo";
+        default:
+            return "Desconhecido";
+    }
+}
+
+// Relação com fopen
+void carregarLaboratorios(VetLaboratorios *vet) {
+
+    FILE *arquivo = fopen("laboratorios.txt", "r");
+
+    if (arquivo == NULL) {
+        return;
+    }
+
+    Laboratorio lab;
+
+    while (fscanf(arquivo, "%d|%63[^|]|%d|%255[^|]|%d\n",
+        &lab.id, lab.nome, &lab.capacidade, lab.equipamentos, (int *)&lab.status) == 5) {
+
+        if (vet->qtd == vet->cap) {
+
+            if (!aumentarCapacidadeLaboratorios(vet)) {
+                break;
+            }
+        }
+
+        if (lab.id <= 0 || lab.capacidade <= 0 || (lab.status != LAB_ATIVO && lab.status != LAB_INDISPONIVEL)) {
+            continue;
+        }
+
+        if (encontrarID(lab.id, vet) != -1) {
+            continue;
+        }
+
+        vet->itens[vet->qtd] = lab;
+
+        vet->qtd++;
+    }
+
+    fclose(arquivo);
+}
+
+void salvarLaboratorios(VetLaboratorios *vet) {
+
+    FILE *arquivo = fopen("laboratorios.txt", "w");
+
+    if (arquivo == NULL) {
+        printf("Erro ao tentar abrir o arquivo\n");
+        return;
+    }
+
+    for (int i = 0; i < vet->qtd; i++) {
+        Laboratorio *lab = &vet->itens[i];
+
+        fprintf(arquivo, "%d|%s|%d|%s|%d\n",
+            lab->id, lab->nome, lab->capacidade, lab->equipamentos, lab->status);
+    }
+    fclose(arquivo);
+}
+
+// Funções principais da Reserva
 void cadastrarReserva(VetReservasLab *reservas, VetLaboratorios *vetLab) {
-// Função para fazer a reserva
-    ReservaLab *r;
-    
+
+    if (vetLab->qtd == 0) {
+        printf("\nNão existem laboratórios cadastrados, cadastre um laboratório antes de criar uma reserva.\n");
+        return;
+    }
+
     if (reservas->qtd == reservas->cap) {
-        if (!aumentarCapacidadeReservas(reservas)) { 
+        if (!aumentarCapacidadeReservas(reservas)) {
             return;
         }
     }
 
-    r = &reservas->itens[reservas->qtd];
+    ReservaLab nova;
 
-    r->id = proximoIdReserva(reservas); // Ver se está alocando o ID certinho OBS. Aparentemente está agora tem que ver na hora de printar
+    nova.id = proximoIdReserva(reservas);
 
-    printf("Insira o nome ou matrícula do solicitante:\n");
-    scanf(" %63[^\n]", r->solicitante);
+//  Pessoa que tá solicitando
+    do {
 
-    printf("Insira o ID do laboratório:\n");
-    scanf("%d", &r->idLaboratorio);
+        printf("\nNome ou matrícula do solicitante: ");
 
-    // Colocar alguma função que busque o laboratório pelo id e veja se ele está disponível
+        lerTexto(nova.solicitante, sizeof(nova.solicitante) );
+
+        if (strlen(nova.solicitante) == 0) {
+            printf("Campo obrigatório.\n");
+        }
+    } while (strlen(nova.solicitante) == 0);
+
+//  Informações do laboratório
+
+    listarLaboratorios(vetLab);
 
     while (1) {
-        
-        printf("Defina a data da sua reserva\n");
-        
+        printf("ID do laboratório: ");
+
+        if (!lerInteiro(&nova.idLaboratorio)) {
+            printf("ID inválido.\n");
+            continue;
+        }
+
+        int indiceLab = encontrarID(nova.idLaboratorio, vetLab);
+
+        if (indiceLab == -1) {
+            printf("Laboratório não encontrado.\n");
+            continue;
+        }
+
+        if (vetLab->itens[indiceLab].status == LAB_INDISPONIVEL) {
+            printf("Esse laboratório esta indisponível.\n");
+            continue;
+        }
+
+        break;
+    }
+
+//  Informações da data
+    while (1) {
+        printf("\nData da reserva\n");
+
         printf("Dia: ");
-        scanf("%d", &r->data.dia);
-        
+
+        if (!lerInteiro(&nova.data.dia)) {
+            printf("Valor inválido.\n");
+            continue;
+        }
+
         printf("Mês: ");
-        scanf("%d", &r->data.mes);
-        
-        printf("Ano: ");
-        scanf("%d", &r->data.ano);
 
-        if (dataValida(&r->data)) {
-            break;
+        if (!lerInteiro(&nova.data.mes)) {
+            printf("Valor inválido.\n");
+            continue;
         }
-
-        printf("Data inválida! Tente outra data.\n");
-    }
-
-    while (1) {
-        printf("Defina o horário de início da sua reserva\n");
-        
-        printf("Hora: ");
-        scanf("%d", &r->inicio.hora);
-
-        printf("Minuto: ");
-        scanf("%d", &r->inicio.minuto);
-        
-        if (horarioInicioValido(&r->inicio)) { 
-            break;
-        }
-
-        printf("Horário inválido! Tente outro horário.\n");
-    }
-
-    while (1) {
-        printf("Defina o horário de término da sua reserva\n");
-       
-       printf("Hora: ");
-        scanf("%d", &r->fim.hora);
-
-        printf("Minuto: ");
-        scanf("%d", &r->fim.minuto);
-
-        if (horarioFinalValido(&r->fim, &r->inicio)) { 
-            break;
-        }
-
-        printf("Horário inválido! Tente outro horário.\n");
-    }
-
-    // Colocar uma função pra checar se não dá conflito de Horários nos laboratórios já reservados
-
-    reservas->qtd++;
-
-    salvarReservas(reservas);
-    
-    printf("Reserva realizada com sucesso!\n");
-}
-
-void atualizarReserva(VetReservasLab *reservas, VetLaboratorios *laboratorios) {
-// Função para atualizar as reservas existentes
-    int id;
-    int indice;
-    int indiceLab;
-
-    printf("\nID da reserva: ");
-    scanf("%d", &id);
-
-    indice = buscarReservaPorId(reservas, id);
-
-    if (indice == -1) {
-        printf("A reserva não foi encontrada.\n");
-        return;
-    }
-
-    ReservaLab *r = &reservas->itens[indice];
-
-    printf("\nNovo solicitante: ");
-    scanf(" %63[^\n]", r->solicitante);
-
-    printf("Novo ID do laboratorio: ");
-    scanf("%d", &r->idLaboratorio);
-
-    indiceLab = encontrarID(r->idLaboratorio, laboratorios);
-
-    if (indiceLab == -1) {
-        printf("O laboratório não foi encontrado.\n");
-        return;
-    }
-
-    if (laboratorios->itens[indiceLab].status ==
-        LAB_INDISPONIVEL) {
-
-        printf("Laboratório indisponível.\n");
-        return;
-    }
-
-    while (1) {
-
-        printf("\nNova data\n");
-
-        printf("Dia: ");
-        scanf("%d", &r->data.dia);
-
-        printf("Mes: ");
-        scanf("%d", &r->data.mes);
 
         printf("Ano: ");
-        scanf("%d", &r->data.ano);
 
-        if (dataValida(&r->data))
+        if (!lerInteiro(&nova.data.ano)) {
+            printf("Valor inválido.\n");
+            continue;
+        }
+
+        if (dataValida(&nova.data))
             break;
 
-        printf("Data inválida.\n");
+        printf("Data inválida! Utilize uma data válida de 2026.\n");
     }
 
-
+//  Informação de horários
     while (1) {
-
-        printf("\nNovo horário inicial\n");
+        printf("\nHorário inicial\n");
 
         printf("Hora: ");
-        scanf("%d", &r->inicio.hora);
+
+        if (!lerInteiro(&nova.inicio.hora)) {
+            printf("Hora inválida.\n");
+            continue;
+        }
 
         printf("Minuto: ");
-        scanf("%d", &r->inicio.minuto);
 
-        if (horarioInicioValido(&r->inicio))
+        if (!lerInteiro(&nova.inicio.minuto)) {
+            printf("Minuto inválido.\n");
+            continue;
+        }
+
+        if (horarioInicioValido(&nova.inicio))
             break;
 
         printf("Horário inicial inválido.\n");
     }
 
-
     while (1) {
 
-        printf("\nNovo horário de término\n");
+        printf("\nHorário final\n");
 
         printf("Hora: ");
-        scanf("%d", &r->fim.hora);
+
+        if (!lerInteiro(&nova.fim.hora)) {
+            printf("Hora inválida.\n");
+            continue;
+        }
 
         printf("Minuto: ");
-        scanf("%d", &r->fim.minuto);
 
-        if (horarioFinalValido(&r->fim, &r->inicio))
+        if (!lerInteiro(&nova.fim.minuto)) {
+            printf("Minuto inválido.\n");
+            continue;
+        }
+
+        if (horarioFinalValido(&nova.fim, &nova.inicio)) {
+
             break;
+        }
 
-        printf("Horário de término inválido.\n");
+        printf("Horário final inválido.\n");
     }
 
+//  Verifivar se está disponível
+    if (!verificarDisponibilidade(reservas, nova.idLaboratorio, nova.data, nova.inicio, nova.fim, -1)) {
 
-    if (!verificarDisponibilidade(reservas, r->idLaboratorio, r->data, r->inicio, r->fim, r->id)) {
-
-        printf("Conflito com outra reserva já existente.\n");
+        printf("\nO laboratório já esta reservado nesse horário.\n");
         return;
     }
 
-    salvarReservas(reservas);
+    reservas->itens[reservas->qtd] = nova;
 
-    printf("Reserva atualizada salva com sucesso!\n");
-}
-
-void removerReserva(VetReservasLab *reservas) {
-// Função para remover reservas
-    int id;
-    int indice;
-
-    printf("\nID da reserva: ");
-    scanf("%d", &id);
-
-    indice = buscarReservaPorId(reservas, id);
-
-    if (indice == -1) {
-        printf("A reserva não foi encontrada.\n");
-        return;
-    }
-
-    for (int i = indice; i < reservas->qtd - 1; i++) {
-        
-        reservas->itens[i] = reservas->itens[i + 1];
-    }
-
-    reservas->qtd--;
+    reservas->qtd++;
 
     salvarReservas(reservas);
 
-    printf("Reserva removida com sucesso!\n");
+    printf("\nReserva realizada com sucesso!\n");
 }
 
 void listarReservas(VetReservasLab *reservas, VetLaboratorios *laboratorios) {
-// Função para listar as reservas que já existem
     if (reservas->qtd == 0) {
         printf("\nNenhuma reserva cadastrada.\n");
         return;
@@ -457,44 +670,244 @@ void listarReservas(VetReservasLab *reservas, VetLaboratorios *laboratorios) {
 
         printf("Laboratório: ");
 
-        if (indiceLab != -1){
+        if (indiceLab != -1) {
             printf("%s\n", laboratorios->itens[indiceLab].nome);
         } else {
-            printf("O laboratório não foi encontrado\n");
+            printf("Laboratório não encontrado\n");
         }
-        printf("Data: %02d/%02d/%d\n", r->data.dia, r->data.mes, r->data.ano);
+
+        printf("Data: %02d/%02d/%04d\n", r->data.dia, r->data.mes, r->data.ano);
 
         printf("Horário: %02d:%02d - %02d:%02d\n", r->inicio.hora, r->inicio.minuto, r->fim.hora, r->fim.minuto);
     }
 }
 
-void relatorioPorData(VetReservasLab *reservas, VetLaboratorios *laboratorios) {
-    Data data;
-    int encontrou = 0;
-
-    printf("\nDigite a data do relatório\n");
-
-    printf("Dia: ");
-    scanf("%d", &data.dia);
-
-    printf("Mês: ");
-    scanf("%d", &data.mes);
-
-    printf("Ano: ");
-    scanf("%d", &data.ano);
-
-    if (!dataValida(&data)) {
-        printf("Data inválida! Tente outra data.\n");
+void atualizarReserva(VetReservasLab *reservas, VetLaboratorios *laboratorios) {
+    if (reservas->qtd == 0) {
+        printf("\nNenhuma reserva cadastrada.\n");
         return;
     }
 
-    printf("\n====== RELATORIO %02d/%02d/%04d ======\n", data.dia, data.mes, data.ano);
+    int id;
+
+    printf("\nID da reserva: ");
+
+    if (!lerInteiro(&id)) {
+        printf("ID invalido.\n");
+        return;
+    }
+
+    int indice = buscarReservaPorId(reservas, id);
+
+    if (indice == -1) {
+        printf("A reserva não foi encontrada.\n");
+        return;
+    }
+
+    // Isso cria uma cópia pra evitar perder a original caso algo falhe.
+    ReservaLab nova = reservas->itens[indice];
+
+    do {
+        printf("\nNovo solicitante: ");
+
+        lerTexto(nova.solicitante, sizeof(nova.solicitante));
+
+        if (strlen(nova.solicitante) == 0) {
+            printf("Campo obrigatório.\n");
+        }
+    } while (strlen(nova.solicitante) == 0);
+
+    while (1) {
+
+        printf("Novo ID do laboratório: ");
+
+        if (!lerInteiro(&nova.idLaboratorio)) {
+            printf("ID inválido.\n");
+            continue;
+        }
+
+        int indiceLab = encontrarID(nova.idLaboratorio, laboratorios);
+
+        if (indiceLab == -1) {
+            printf("Laboratório não encontrado.\n");
+            continue;
+        }
+
+        if (laboratorios->itens[indiceLab].status == LAB_INDISPONIVEL) {
+            printf("Laboratório indisponível.\n");
+            continue;
+        }
+
+        break;
+    }
+
+    while (1) {
+
+        printf("\nNova data\n");
+
+        printf("Dia: ");
+
+        if (!lerInteiro(&nova.data.dia))
+            continue;
+
+        printf("Mês: ");
+
+        if (!lerInteiro(&nova.data.mes))
+            continue;
+
+        printf("Ano: ");
+
+        if (!lerInteiro(&nova.data.ano))
+            continue;
+
+        if (dataValida(&nova.data))
+            break;
+
+        printf("Data inválida.\n");
+    }
+
+    while (1) {
+
+        printf("\nNovo horário inicial\n");
+
+        printf("Hora: ");
+
+        if (!lerInteiro(&nova.inicio.hora))
+            continue;
+
+        printf("Minuto: ");
+
+        if (!lerInteiro(&nova.inicio.minuto))
+            continue;
+
+        if (horarioInicioValido(&nova.inicio))
+            break;
+
+        printf("Horário inicial inválido.\n");
+    }
+
+
+    while (1) {
+
+        printf("\nNovo horário de término\n");
+
+        printf("Hora: ");
+
+        if (!lerInteiro(&nova.fim.hora))
+            continue;
+
+        printf("Minuto: ");
+
+        if (!lerInteiro(&nova.fim.minuto))
+            continue;
+
+        if (horarioFinalValido(&nova.fim, &nova.inicio)) {
+
+            break;
+        }
+
+        printf("Horário de término inválido.\n");
+    }
+
+    if (!verificarDisponibilidade(reservas, nova.idLaboratorio, nova.data, nova.inicio, nova.fim, nova.id)) {
+        printf("Conflito com outra reserva existente.\n");
+        return;
+    }
+
+    reservas->itens[indice] = nova;
+
+    salvarReservas(reservas);
+
+    printf("Reserva atualizada com sucesso!\n");
+}
+
+void removerReserva(VetReservasLab *reservas) {
+    if (reservas->qtd == 0) {
+        printf("\nNenhuma reserva cadastrada.\n");
+        return;
+    }
+
+    int id;
+
+    printf("\nID da reserva: ");
+
+    if (!lerInteiro(&id)) {
+        printf("ID invalido.\n");
+        return;
+    }
+
+    int indice = buscarReservaPorId(reservas, id);
+
+    if (indice == -1) {
+        printf("A reserva não foi encontrada.\n");
+        return;
+    }
+
+    int confirmar;
+
+    do {
+        printf("Confirma a remoção da reserva %d? [1] Sim [0] Nao\n", id);
+        printf("Opção: ");
+
+        if (!lerInteiro(&confirmar)) {
+            printf("Opção inválida.\n");
+            continue;
+        }
+
+    } while (confirmar != 0 && confirmar != 1);
+
+    if (confirmar == 0) {
+        printf("Remoção cancelada.\n");
+        return;
+    }
+
+//  Mover as reservas anteriores para ficar organizado
+    for (int i = indice; i < reservas->qtd - 1; i++) {
+        reservas->itens[i] = reservas->itens[i + 1];
+    }
+
+    reservas->qtd--;
+
+    salvarReservas(reservas);
+
+    printf("Reserva removida com sucesso!\n");
+}
+
+void relatorioPorData(VetReservasLab *reservas, VetLaboratorios *laboratorios) {
+    Data data;
+
+    int encontrou = 0;
+
+    printf("\nDigite a data a ser pesquisada\n");
+
+    printf("Dia: ");
+
+    if (!lerInteiro(&data.dia))
+        return;
+
+    printf("Mês: ");
+
+    if (!lerInteiro(&data.mes))
+        return;
+
+    printf("Ano: ");
+
+    if (!lerInteiro(&data.ano))
+        return;
+
+    if (!dataValida(&data)) {
+        printf("Data inválida!\n");
+        return;
+    }
+
+    printf("\n====== RELATÓRIO DE %02d/%02d/%04d ======\n", data.dia, data.mes, data.ano);
 
     for (int i = 0; i < reservas->qtd; i++) {
 
         ReservaLab *r = &reservas->itens[i];
 
         if (r->data.dia == data.dia && r->data.mes == data.mes && r->data.ano == data.ano) {
+            
             int indiceLab = encontrarID(r->idLaboratorio, laboratorios);
 
             encontrou = 1;
@@ -503,204 +916,210 @@ void relatorioPorData(VetReservasLab *reservas, VetLaboratorios *laboratorios) {
 
             printf("Solicitante: %s\n", r->solicitante);
 
-            if (indiceLab != -1)
+            if (indiceLab != -1) {
                 printf("Laboratório: %s\n", laboratorios->itens[indiceLab].nome);
+            }
 
             printf("Horário: %02d:%02d - %02d:%02d\n", r->inicio.hora, r->inicio.minuto, r->fim.hora, r->fim.minuto);
         }
     }
-    if (encontrou == 0){
+
+    if (!encontrou) {
+
         printf("\nNenhuma reserva foi encontrada nessa data.\n");
     }
 }
 
+//  Funções auxiliares da Reserva
 
-// Funções auxiliares da reserva
-
-// Relação com a data da reserva / Validação
+//  Funções referentes ao Horário / Data
 int dataValida(Data *dt) {
-// Função para ver se a data é válida
     int dias;
-    
-    if (dt->ano != 2026) {
-		return 0;
-	}
-    if (dt->mes < 1 || dt->mes > 12) {
-		return 0;
-	}
-	
+
+    if (dt->ano != 2026)
+        return 0;
+
+    if (dt->mes < 1 || dt->mes > 12)
+        return 0;
+
     if (dt->mes == 2) {
         dias = 28;
-    }
-    else if (dt->mes == 4 || dt->mes == 6 || dt->mes == 9 || dt->mes == 11) {
+        
+    } else if (dt->mes == 4 || dt->mes == 6 || dt->mes == 9 || dt->mes == 11) {
         dias = 30;
-    }
-    else {
+
+    } else {
         dias = 31;
     }
-    
-    if (dt->dia < 1 || dt->dia > dias){
+
+    if (dt->dia < 1 || dt->dia > dias)
         return 0;
-    }
-	
-	return 1;
-}
-
-int horarioInicioValido(Horario *hi) {
-// Função para ver se o horário de início é válido
-	if (hi->hora < 7 || hi->hora > 20) {
-		return 0;
-	}
-	if (hi->minuto < 0 || hi->minuto > 59) {
-		return 0;
-	}
-	return 1;
-}
-
-int horarioFinalValido(Horario *hf, Horario *hi) {
-// Função para ver se o horário de término é válido
-	if (hf->hora < 8 || hf->hora > 21) {
-		return 0;
-	} else if (hf->minuto < 0 || hf->minuto > 59) {
-		return 0;
-	} else if (hf->hora < hi->hora){
-	    return 0;
-	} else if (hf->hora == hi->hora && hf->minuto < hi->minuto){
-	    return 0;
-	} else if (hf->hora == hi->hora && hf->minuto == hi->minuto){
-	    return 0;
-	}
-	
-	return 1;
-}
-
-int verificarDisponibilidade(VetReservasLab *reservas, int idLaboratorio, Data data, Horario inicio, Horario fim, int idReservaIgnorar) {
-    int novoInicio = inicio.hora * 60 + inicio.minuto;
-    int novoFim = fim.hora * 60 + fim.minuto;
-
-    for (int i = 0; i < reservas->qtd; i++) {
-        ReservaLab *r = &reservas->itens[i];
-
-        if (r->id == idReservaIgnorar)
-            continue;
-
-        if (r->idLaboratorio != idLaboratorio)
-            continue;
-
-        if (r->data.dia != data.dia ||
-            r->data.mes != data.mes ||
-            r->data.ano != data.ano)
-            continue;
-
-        int inicioExistente = r->inicio.hora * 60 + r->inicio.minuto;
-        int fimExistente = r->fim.hora * 60 + r->fim.minuto;
-
-        if (novoInicio < fimExistente && novoFim > inicioExistente)
-            return 0;
-    }
 
     return 1;
 }
 
-// Relação com alloc
+int horarioInicioValido(Horario *hi) {
+
+    if (hi->hora < 7 || hi->hora > 20)
+        return 0;
+
+    if (hi->minuto < 0 || hi->minuto > 59)
+        return 0;
+
+    return 1;
+}
+
+int horarioFinalValido(Horario *hf,Horario *hi) {
+
+    if (hf->hora < 8 || hf->hora > 21)
+        return 0;
+
+    if (hf->minuto < 0 || hf->minuto > 59)
+        return 0;
+
+    // Converte os horários para minutos para ficar mais fácil de compará-los.
+    int inicio = hi->hora * 60 + hi->minuto;
+
+    int fim =hf->hora * 60 + hf->minuto;
+
+    if (fim <= inicio)
+        return 0;
+
+    return 1;
+}
+
+int verificarDisponibilidade(VetReservasLab *reservas, int idLaboratorio, Data data, Horario inicio, Horario fim, int idReservaIgnorar) {
+
+    int novoInicio = inicio.hora * 60 + inicio.minuto;
+
+    int novoFim = fim.hora * 60 + fim.minuto;
+
+    for (int i = 0; i < reservas->qtd; i++) {
+
+        ReservaLab *r = &reservas->itens[i];
+
+        // Ignora a reserva que está sendo atualizada.
+        if (r->id == idReservaIgnorar)
+            continue;
+
+
+        if (r->idLaboratorio != idLaboratorio)
+            continue;
+
+        if (r->data.dia != data.dia || r->data.mes != data.mes || r->data.ano != data.ano)
+            continue;
+
+        int inicioExistente = r->inicio.hora * 60 + r->inicio.minuto;
+
+        int fimExistente = r->fim.hora * 60 + r->fim.minuto;
+
+        // Dá conflito se o horário coincidir.
+        if (novoInicio < fimExistente && novoFim > inicioExistente) {
+
+            return 0;
+        }
+    }
+
+
+    return 1;
+}
+
+// Relação com alloc e memória
+
 void inicializarReservas(VetReservasLab *vet) {
-// Função para alocar a memória inicial das reservas
     vet->qtd = 0;
     vet->cap = 10;
 
-    vet->itens = malloc(vet->cap * sizeof(ReservaLab));
+    vet->itens =malloc(vet->cap * sizeof(ReservaLab));
 
     if (vet->itens == NULL) {
-        printf("Erro ao tentar alocar a memória.\n");
+        printf("Erro ao tentar alocar memória para as reservas.\n");
         exit(1);
     }
 }
 
 int aumentarCapacidadeReservas(VetReservasLab *reservas) {
-// Função para aumentar o número possivel de reservas
-    int novaCapacidade;
-    ReservaLab *temporario;
 
-    novaCapacidade = reservas->cap + 10;
+    int novaCapacidade = reservas->cap + 10;
 
-    temporario = realloc(reservas->itens, novaCapacidade * sizeof(ReservaLab));
+// O ponteiro temporário (assim como no dos laboratórios) é pra evitar perder o endereço original caso o realloc dê erro.
+    ReservaLab *temporario = realloc( reservas->itens, novaCapacidade * sizeof(ReservaLab));
 
     if (temporario == NULL) {
-        printf("Erro ao tentar aumentar a memória.\n");
+        printf("Erro ao tentar aumentar a memória das reservas.\n");
         return 0;
     }
 
     reservas->itens = temporario;
+
     reservas->cap = novaCapacidade;
 
     return 1;
 }
 
 void liberarReservas(VetReservasLab *vet) {
-// Função para liberar espaço inutil das reservas
+
     free(vet->itens);
 
     vet->itens = NULL;
+
     vet->qtd = 0;
+
     vet->cap = 0;
 }
 
 // Relação com fopen
 void carregarReservas(VetReservasLab *vet) {
-// Função para carregar as reservas já existentes para evitar sobreposição e perda de informações, eu acho pelo menos
+
     FILE *arquivo = fopen("reservas.txt", "r");
-    ReservaLab r;
 
     if (arquivo == NULL)
         return;
 
-    while (fscanf(arquivo, "%d|%63[^|]|%d|%d|%d|%d|%d|%d|%d|%d\n",
-                  &r.id,
-                  r.solicitante,
-                  &r.idLaboratorio,
-                  &r.data.dia,
-                  &r.data.mes,
-                  &r.data.ano,
-                  &r.inicio.hora,
-                  &r.inicio.minuto,
-                  &r.fim.hora,
-                  &r.fim.minuto) == 10) {
+    ReservaLab r;
+
+    while (
+        fscanf(arquivo, "%d|%63[^|]|%d|%d|%d|%d|%d|%d|%d|%d\n", &r.id, r.solicitante, &r.idLaboratorio, &r.data.dia, &r.data.mes, &r.data.ano,
+            &r.inicio.hora, &r.inicio.minuto, &r.fim.hora, &r.fim.minuto) == 10) {
 
         if (vet->qtd == vet->cap) {
             if (!aumentarCapacidadeReservas(vet))
                 break;
         }
 
+        // Vê se os dados carregados são válidos
+        if (r.id <= 0 || r.idLaboratorio <= 0 || !dataValida(&r.data) || !horarioInicioValido(&r.inicio) || !horarioFinalValido( &r.fim, &r.inicio)) {
+            continue;
+        }
+
+        // Evita IDs duplicados.
+        if (buscarReservaPorId(vet, r.id) != -1)
+            continue;
+
         vet->itens[vet->qtd] = r;
+
         vet->qtd++;
     }
+
 
     fclose(arquivo);
 }
 
 void salvarReservas(VetReservasLab *vet) {
-// Função para colocar as reservas em um arquivo de texto
-    FILE *arquivo = fopen("reservas.txt", "w");
+    FILE *arquivo =
+        fopen("reservas.txt", "w");
 
     if (arquivo == NULL) {
-        printf("Erro ao abrir arquivo de reservas.\n");
+        printf("Erro ao tenar abrir o arquivo\n");
+
         return;
     }
 
     for (int i = 0; i < vet->qtd; i++) {
         ReservaLab *r = &vet->itens[i];
 
-        fprintf(arquivo, "%d|%s|%d|%d|%d|%d|%d|%d|%d|%d\n",
-                r->id,
-                r->solicitante,
-                r->idLaboratorio,
-                r->data.dia,
-                r->data.mes,
-                r->data.ano,
-                r->inicio.hora,
-                r->inicio.minuto,
-                r->fim.hora,
-                r->fim.minuto);
+        fprintf(arquivo, "%d|%s|%d|%d|%d|%d|%d|%d|%d|%d\n", r->id, r->solicitante, r->idLaboratorio, r->data.dia, r->data.mes, r->data.ano, 
+        r->inicio.hora, r->inicio.minuto, r->fim.hora, r->fim.minuto);
     }
 
     fclose(arquivo);
@@ -708,7 +1127,7 @@ void salvarReservas(VetReservasLab *vet) {
 
 // Relação com ID
 int buscarReservaPorId(VetReservasLab *vet, int id) {
-// Função para buscar as reservas pelo ID delas
+
     for (int i = 0; i < vet->qtd; i++) {
         if (vet->itens[i].id == id)
             return i;
@@ -718,13 +1137,25 @@ int buscarReservaPorId(VetReservasLab *vet, int id) {
 }
 
 int proximoIdReserva(VetReservasLab *vet) {
-// Função apenas para determinar o próximo Id da reserva
+
     int maior = 0;
 
     for (int i = 0; i < vet->qtd; i++) {
+
         if (vet->itens[i].id > maior)
             maior = vet->itens[i].id;
     }
 
     return maior + 1;
+}
+
+// Funções para mostrar quantas reservas e Laboratórios têm
+int quantidadeLaboratorios(VetLaboratorios *vet) {
+    
+    return vet->qtd;
+}
+
+int quantidadeReservas(VetReservasLab *vet) {
+
+    return vet->qtd;
 }
