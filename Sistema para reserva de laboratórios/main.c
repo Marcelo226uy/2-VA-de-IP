@@ -156,7 +156,7 @@ int main(void) {
                 break;
 
             case 0:
-                printf("\nSistema Desligado");
+                printf("\nSistema Desligado\n");
                 break;
 
             default:
