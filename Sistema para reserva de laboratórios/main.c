@@ -2,66 +2,71 @@
 #include <stdlib.h>
 #include "Funcoes.h"
 
-
 void menuLaboratorios(VetLaboratorios *laboratorios) {
     int opcao;
 
     do {
         printf("\n====================================\n");
-        printf("       GERENCIAR LABORATORIOS       \n");
+        printf("       GERENCIAR OS LABORATÓRIOS       \n");
         printf("====================================\n");
-        printf("1 - Inserir laboratorio\n");
-        printf("2 - Listar laboratorios\n");
-        printf("3 - Atualizar laboratorio\n");
-        printf("4 - Remover laboratorio\n");
+        printf("1 - Cadastrar laboratório\n");
+        printf("2 - Listar laboratórios\n");
+        printf("3 - Atualizar laboratório\n");
+        printf("4 - Remover laboratório\n");
         printf("0 - Voltar\n");
-        printf("\nOpcao: ");
-        scanf("%d", &opcao);
+        printf("Opção: ");
+
+        if (!lerInteiro(&opcao)) {
+            printf("Opção inválida. Digite um número.\n");
+            continue;
+        }
 
         switch (opcao) {
             case 1:
-//              inserirLaboratorio(laboratorios);
+                cadastrarLaboratorio(laboratorios);
                 break;
 
             case 2:
-            //listarLaboratorios(laboratorios);
+                listarLaboratorios(laboratorios);
                 break;
 
             case 3:
-           //     atualizarLaboratorio(laboratorios);
+                atualizarLaboratorio(laboratorios);
                 break;
 
             case 4:
-           //     removerLaboratorio(laboratorios);
+                removerLaboratorio(laboratorios);
                 break;
 
             case 0:
                 break;
 
             default:
-                printf("Opcao invalida.\n");
+                printf("Opção inválida.\n");
         }
 
     } while (opcao != 0);
 }
 
-
-void menuReservas(VetReservasLab *reservas,
-                  VetLaboratorios *laboratorios) {
+void menuReservas(VetReservasLab *reservas, VetLaboratorios *laboratorios) {
     int opcao;
 
     do {
         printf("\n====================================\n");
-        printf("          GERENCIAR RESERVAS        \n");
+        printf("        GERENCIAR AS RESERVAS        \n");
         printf("====================================\n");
-        printf("1 - Inserir reserva\n");
+        printf("1 - Cadastrar reserva\n");
         printf("2 - Listar reservas\n");
         printf("3 - Atualizar reserva\n");
         printf("4 - Remover reserva\n");
-        printf("5 - Relatorio por data\n");
+        printf("5 - Relatório por data\n");
         printf("0 - Voltar\n");
-        printf("\nOpcao: ");
-        scanf("%d", &opcao);
+        printf("Opção: ");
+
+        if (!lerInteiro(&opcao)) {
+            printf("Opção inválida. Digite um número.\n");
+            continue;
+        }
 
         switch (opcao) {
             case 1:
@@ -88,42 +93,46 @@ void menuReservas(VetReservasLab *reservas,
                 break;
 
             default:
-                printf("Opcao invalida.\n");
+                printf("Opção inválida.\n");
         }
 
     } while (opcao != 0);
 }
 
-
-int main() {
+int main(void) {
     VetLaboratorios laboratorios;
     VetReservasLab reservas;
     int opcao;
 
-//    inicializarLaboratorios(&laboratorios);
+//  Inicializa os vetores
+    inicializarLaboratorios(&laboratorios);
     inicializarReservas(&reservas);
 
-//    carregarLaboratorios(&laboratorios);
+//  Carrega reservas e laboratórios já existentes
+    carregarLaboratorios(&laboratorios);
     carregarReservas(&reservas);
 
     do {
         printf("\n============================================\n");
-        printf("      SISTEMA DE RESERVA DE LABORATORIOS    \n");
+        printf("      SISTEMA DE RESERVA DE LABORATÓRIOS    \n");
         printf("============================================\n");
 
-        printf("Laboratorios cadastrados: %d\n", laboratorios.qtd);
-        printf("Reservas cadastradas: %d\n", reservas.qtd);
+        printf("Laboratórios cadastrados: %d\n", quantidadeLaboratorios(&laboratorios));
 
-        printf("\n");
-        printf("1 - Gerenciar laboratorios\n");
+        printf("Reservas cadastradas: %d\n", quantidadeReservas(&reservas));
+
+        printf("\n1 - Gerenciar laboratórios\n");
         printf("2 - Gerenciar reservas\n");
-        printf("3 - Listar laboratorios\n");
+        printf("3 - Listar laboratórios\n");
         printf("4 - Listar reservas\n");
-        printf("5 - Relatorio por data\n");
+        printf("5 - Relatório por data\n");
         printf("0 - Sair\n");
+        printf("Opção: ");
 
-        printf("\nOpcao: ");
-        scanf("%d", &opcao);
+        if (!lerInteiro(&opcao)) {
+            printf("\nOpção inválida! Digite um número.\n");
+            continue;
+        }
 
         switch (opcao) {
             case 1:
@@ -147,16 +156,21 @@ int main() {
                 break;
 
             case 0:
-                printf("\nEncerrando sistema...\n");
+                printf("\nSistema Desligado");
                 break;
 
             default:
-                printf("\nOpcao invalida!\n");
+                printf("\nOpção inválida!\n");
         }
 
     } while (opcao != 0);
 
-//    liberarLaboratorios(&laboratorios);
+//  Salva os dados antes de encerrar.
+    salvarLaboratorios(&laboratorios);
+    salvarReservas(&reservas);
+
+//  Libera a memória não utilizada
+    liberarLaboratorios(&laboratorios);
     liberarReservas(&reservas);
 
     return 0;
