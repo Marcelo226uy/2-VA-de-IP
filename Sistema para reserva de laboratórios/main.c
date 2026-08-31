@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "Funcoes.h"
+#include "utils.h"
+#include "laboratorios.h"
+#include "reservas.h"
 
 void menuLaboratorios(VetLaboratorios *laboratorios) {
     int opcao;
